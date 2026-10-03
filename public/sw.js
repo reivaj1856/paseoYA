@@ -1,5 +1,5 @@
 // Service Worker for PaseoYa PWA
-const CACHE_NAME = 'paseoya-v1';
+const CACHE_NAME = 'paseoya-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -31,17 +31,25 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network first with cache fallback for navigation
+  const url = new URL(event.request.url);
+
+  // Only intercept GET requests and same-origin requests (avoid breaking Supabase API, external images, etc.)
+  if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Network first with cache fallback for HTML navigation
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match('/index.html') || caches.match('/');
+      fetch(event.request).catch(async () => {
+        const cached = await caches.match('/index.html') || await caches.match('/');
+        return cached || new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
       })
     );
     return;
   }
 
-  // Stale-while-revalidate for assets
+  // Stale-while-revalidate for local static assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
@@ -55,6 +63,8 @@ self.addEventListener('fetch', (event) => {
         .catch(() => cachedResponse);
 
       return cachedResponse || fetchPromise;
+    }).catch(() => {
+      return new Response('', { status: 404 });
     })
   );
 });

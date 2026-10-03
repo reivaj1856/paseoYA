@@ -1,30 +1,44 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { CatalogService } from '../../../../core/services/catalog.service';
+import { SupabaseService } from '../../../../core/services/supabase.service';
 import { Order, Store, Product, OrderStatus } from '../../../../core/models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <div class="space-y-6 pb-10">
       <!-- Title & Context -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 class="text-xl md:text-2xl font-black tracking-tight text-slate-900">
             Tablero de Control Operacional
           </h1>
           <p class="text-xs text-slate-500 mt-0.5">
-            Supervisión integral de ventas, flujo de retiro y parqueo en Paseo Aranjuez.
+            Supervisión integral de ventas, pedidos y flujo de retiro en mostrador de Paseo Aranjuez.
           </p>
         </div>
 
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
-            <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Centro Comercial Operativo
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            (click)="showDbModal.set(true)"
+            [class]="supabaseService.isConnected() ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'"
+            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-bold transition cursor-pointer shadow-2xs"
+            title="Ver o configurar conexión con Supabase"
+          >
+            <span class="size-2 rounded-full" [class]="supabaseService.isConnected() ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'"></span>
+            <span>{{ supabaseService.isConnected() ? 'Supabase Conectado' : 'Configurar Supabase' }}</span>
+            <span class="text-[10px] opacity-70">⚙️</span>
+          </button>
+
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 text-white text-xs font-bold">
+            <span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Mall en Vivo
           </span>
         </div>
       </div>
@@ -53,14 +67,14 @@ import { Order, Store, Product, OrderStatus } from '../../../../core/models';
           </p>
         </div>
 
-        <!-- 3. Horas de Parqueo Subterráneo -->
+        <!-- 3. Retiro Express QR -->
         <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs space-y-1">
-          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Parqueo Subterráneo</span>
+          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Retiro Express QR</span>
           <div class="text-2xl font-black text-indigo-700 tabular-nums">
-            {{ deliveredCount() * 2 }} hrs
+            {{ deliveredCount() }} pases
           </div>
           <p class="text-[11px] text-slate-500 font-medium">
-            Validadas por consumo físico
+            Entregas validadas en mostrador
           </p>
         </div>
 
@@ -221,12 +235,102 @@ import { Order, Store, Product, OrderStatus } from '../../../../core/models';
           </div>
         </div>
       </div>
+
+      <!-- SUPABASE CONNECTION MODAL -->
+      @if (showDbModal()) {
+        <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2.5">
+                <div class="size-9 rounded-xl bg-emerald-500 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                  ⚡
+                </div>
+                <div>
+                  <h3 class="font-black text-base text-slate-900 leading-tight">Conexión con Supabase</h3>
+                  <p class="text-[11px] text-slate-500">Configuración de Base de Datos para el Mall</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="showDbModal.set(false)"
+                class="size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- Current Status Box -->
+            <div
+              class="p-3.5 rounded-2xl border text-xs space-y-1"
+              [class]="supabaseService.isConnected() ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-amber-50 border-amber-200 text-amber-900'"
+            >
+              <div class="flex items-center gap-2 font-bold">
+                <span class="size-2.5 rounded-full" [class]="supabaseService.isConnected() ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+                <span>{{ supabaseService.isConnected() ? 'Conectado a la Base de Datos' : 'Modo Simulación Local' }}</span>
+              </div>
+              <p class="text-[11px] opacity-90 leading-relaxed">{{ supabaseService.statusMessage() }}</p>
+            </div>
+
+            <!-- Configuration Inputs -->
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Project URL de Supabase</label>
+                <input
+                  type="text"
+                  [(ngModel)]="customUrl"
+                  placeholder="https://xyzcompany.supabase.co"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono text-xs text-slate-900"
+                />
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Anon Public Key</label>
+                <input
+                  type="password"
+                  [(ngModel)]="customKey"
+                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI..."
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono text-xs text-slate-900"
+                />
+              </div>
+              <p class="text-[10px] text-slate-400">
+                Las credenciales se guardan de forma segura en tu navegador y toman prioridad sobre los valores por defecto.
+              </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between gap-3 pt-2">
+              <button
+                type="button"
+                (click)="testConnection()"
+                [disabled]="testingDb()"
+                class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                {{ testingDb() ? 'Probando...' : '🔍 Probar Conexión' }}
+              </button>
+
+              <button
+                type="button"
+                (click)="saveAndApplySupabase()"
+                class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer"
+              >
+                Guardar y Conectar
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
   private catalogService = inject(CatalogService);
+  readonly supabaseService = inject(SupabaseService);
+
+  showDbModal = signal<boolean>(false);
+  customUrl = '';
+  customKey = '';
+  testingDb = signal<boolean>(false);
 
   orders = signal<Order[]>([]);
   stores = signal<Store[]>([]);
@@ -328,5 +432,35 @@ export class DashboardComponent implements OnInit {
     this.orders.set(this.catalogService.orders());
     this.stores.set(this.catalogService.stores());
     this.products.set(this.catalogService.products());
+
+    if (typeof localStorage !== 'undefined') {
+      this.customUrl = localStorage.getItem('PASEO_SUPABASE_URL') || '';
+      this.customKey = localStorage.getItem('PASEO_SUPABASE_ANON_KEY') || '';
+    }
+  }
+
+  async testConnection(): Promise<void> {
+    this.testingDb.set(true);
+    try {
+      if (this.customUrl && this.customKey) {
+        this.supabaseService.setCredentials(this.customUrl, this.customKey);
+      } else {
+        await this.supabaseService.testConnection();
+      }
+    } finally {
+      this.testingDb.set(false);
+    }
+  }
+
+  async saveAndApplySupabase(): Promise<void> {
+    if (!this.customUrl || !this.customKey) {
+      alert('Por favor introduce la URL del proyecto y la clave pública (Anon Key).');
+      return;
+    }
+    this.supabaseService.setCredentials(this.customUrl, this.customKey);
+    await this.testConnection();
+    await this.catalogService.getCategories();
+    await this.catalogService.getStores();
+    this.showDbModal.set(false);
   }
 }

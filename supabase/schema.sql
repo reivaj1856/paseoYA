@@ -60,9 +60,9 @@ CREATE TABLE IF NOT EXISTS public.stores (
     created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW())
 );
 
--- 5. TABLA: PROFILES (Perfiles con roles y vinculación de tienda)
+-- 5. TABLA: PROFILES (Perfiles con roles y vinculación de tienda - UUID v4 automático)
 CREATE TABLE IF NOT EXISTS public.profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT NOT NULL,
     nombre_completo TEXT NOT NULL,
     telefono TEXT,
@@ -71,6 +71,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW()),
     updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW())
 );
+
+-- Si la tabla ya existía con la restricción foránea a auth.users, la eliminamos para evitar errores 23503:
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+ALTER TABLE public.profiles ALTER COLUMN id SET DEFAULT gen_random_uuid();
 
 -- 6. TABLA: PRODUCTS (Catálogo con control de stock de cada tienda)
 CREATE TABLE IF NOT EXISTS public.products (
@@ -703,3 +707,15 @@ DO $$ BEGIN
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
+
+-- 9. PRIVILEGIOS Y PERMISOS DE SCHEMA PARA ROLES DE SUPABASE
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO anon;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO authenticated;
+

@@ -85,7 +85,10 @@ INSERT INTO public.products (id, store_id, nombre, descripcion, precio, stock, i
 ON CONFLICT (id) DO NOTHING;
 
 -- 4. USUARIOS DE PRUEBA (Profiles asociados)
--- Nota: En Supabase Auth, los usuarios se crean en auth.users; insertamos sus perfiles en public.profiles:
+-- Asegurar que profiles no exija que el ID exista previamente en auth.users
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+ALTER TABLE public.profiles ALTER COLUMN id SET DEFAULT gen_random_uuid();
+
 INSERT INTO public.profiles (id, email, nombre_completo, telefono, rol, store_id) VALUES
 ('11111111-1111-4111-a111-111111111111', 'cliente@paseo.bo', 'Carlos Mendoza', '70712345', 'cliente', NULL),
 ('22222222-2222-4222-a222-222222222222', 'comercio@paseo.bo', 'Sony Store Cochabamba (Piso 2)', '71798765', 'comercio', 'a0000000-0000-0000-0000-000000000001'),

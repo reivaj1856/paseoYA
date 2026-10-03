@@ -37,11 +37,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    <!-- Service Worker Registration -->
+    <!-- Cache cleanup and Service Worker Registration -->
     <script>
+      // Clean up legacy placeholder Supabase credentials if stored in localStorage
+      try {
+        if (typeof localStorage !== 'undefined') {
+          const storedUrl = localStorage.getItem('PASEO_SUPABASE_URL');
+          if (storedUrl && storedUrl.includes('placeholder')) {
+            localStorage.removeItem('PASEO_SUPABASE_URL');
+            localStorage.removeItem('PASEO_SUPABASE_ANON_KEY');
+          }
+        }
+      } catch (e) {}
+
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+          navigator.serviceWorker.register('/sw.js').then((registration) => {
+            registration.update();
+          }).catch(() => {});
         });
       }
     </script>
