@@ -64,6 +64,7 @@ export const ICON_NAMES = [
   'mic',
   'mic-off',
   'send',
+  'message-circle',
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
@@ -162,4 +163,7 @@ export const ICONS: Record<IconName, string[]> = {
   mic: ['M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z', 'M19 10v2a7 7 0 0 1-14 0v-2', 'M12 19v4', 'M8 23h8'],
   'mic-off': ['M1 1l22 22', 'M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6', 'M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23', 'M12 19v4', 'M8 23h8'],
   send: ['M22 2L11 13', 'M22 2l-7 20-4-9-9-4 20-7z'],
+  'message-circle': [
+    'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
+  ],
 };

@@ -646,6 +646,34 @@ import { LoyaltyService } from '../../../core/services/loyalty.service';
         </div>
       }
 
+      <!-- Desktop Floating IA Chat Message Button (Costado inferior derecho en versión PC) -->
+      @if (!chatbotService.isOpen()) {
+        <div class="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <!-- Optional Tooltip Tag -->
+          <div class="bg-slate-900/90 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-slate-700/60 pointer-events-none select-none flex items-center gap-1.5">
+            <span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Asistente IA Paseo</span>
+          </div>
+
+          <!-- Circular Floating Action Button -->
+          <button
+            type="button"
+            (click)="chatbotService.toggleOpen()"
+            class="relative size-14 rounded-full bg-gradient-to-tr from-amber-500 via-indigo-600 to-purple-600 p-[2.5px] shadow-2xl hover:shadow-indigo-500/40 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-4 focus:ring-indigo-400/40 group"
+            aria-label="Hablar con el asistente de IA PaseoYa"
+            title="Hablar con el Asistente IA"
+          >
+            <!-- Glowing background pulse ring -->
+            <span class="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-400 to-indigo-500 blur-sm opacity-70 group-hover:opacity-100 animate-pulse"></span>
+
+            <!-- Inner core with message-circle icon -->
+            <div class="relative w-full h-full rounded-full bg-slate-950 flex items-center justify-center text-white">
+              <app-icon name="message-circle" [size]="24" class="text-amber-300 group-hover:scale-110 transition-transform duration-200 drop-shadow" />
+            </div>
+          </button>
+        </div>
+      }
+
       <!-- PWA Install Guide Modal (Android / iOS / PC) -->
       <app-pwa-install-modal />
     </div>
