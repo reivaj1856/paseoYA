@@ -1,6 +1,5 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LoyaltyService, POINTS_PER_BOLIVIANO_DISCOUNT, MAX_DISCOUNT_PERCENTAGE } from '../../../../core/services/loyalty.service';
 import { ToastService } from '../../../../shared/ui/toast/toast.service';
@@ -9,7 +8,7 @@ import { IconComponent } from '../../../../shared/ui/icon/icon.component';
 @Component({
   selector: 'app-club-fidelizacion',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, IconComponent],
+  imports: [CommonModule, FormsModule, IconComponent],
   template: `
     <div class="max-w-4xl mx-auto space-y-6 pb-12">
       <!-- Header Banner VIP -->

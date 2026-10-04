@@ -50,6 +50,10 @@ export const CLIENTE_ROUTES: Routes = [
         path: 'club',
         loadComponent: () => import('./pages/club-fidelizacion/club-fidelizacion.component').then(m => m.ClubFidelizacionComponent),
       },
+      {
+        path: 'jarvis',
+        loadComponent: () => import('./pages/jarvis-live/jarvis-live.component').then(m => m.JarvisLiveComponent),
+      },
     ],
   },
 ];

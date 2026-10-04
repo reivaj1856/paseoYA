@@ -31,7 +31,6 @@ import { LoyaltyService } from '../../../core/services/loyalty.service';
     RouterLinkActive,
     ToastComponent,
     ChatbotComponent,
-    AiOrbIconComponent,
     PwaInstallModalComponent,
     IconComponent,
   ],
@@ -166,6 +165,15 @@ import { LoyaltyService } from '../../../core/services/loyalty.service';
             >
               <app-icon name="gem" [size]="16" class="text-amber-500" />
               <span>Club & Puntos</span>
+            </a>
+
+            <a
+              routerLink="/cliente/jarvis"
+              routerLinkActive="bg-amber-500 text-slate-950 font-black shadow-xs"
+              class="btn-press px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-300 font-extrabold whitespace-nowrap flex items-center gap-1.5"
+            >
+              <app-icon name="sparkles" [size]="15" class="text-amber-600" />
+              <span>Jarvis Paseo AI</span>
             </a>
           </nav>
 
@@ -521,7 +529,7 @@ import { LoyaltyService } from '../../../core/services/loyalty.service';
 
       <!-- CENTRAL NAVIGATION DOCK WITH PROMINENT CENTRAL IA BUTTON (Mobile bottom bar & Desktop floating dock) -->
       <nav
-        class="fixed bottom-0 md:bottom-4 left-0 right-0 md:left-1/2 md:-translate-x-1/2 md:max-w-lg md:rounded-3xl z-30 bg-white/95 backdrop-blur-md border-t md:border border-slate-200/90 safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.06)] md:shadow-2xl transition-all"
+        class="fixed bottom-0 md:hidden left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200/90 safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.06)] transition-all"
         aria-label="Navegación principal PaseoYa"
       >
         <div class="max-w-md md:max-w-lg mx-auto grid grid-cols-5 h-16 items-center px-2">

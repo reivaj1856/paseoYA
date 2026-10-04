@@ -130,3 +130,6 @@ export interface LoyaltyAccount {
   total_referidos: number;
   historial: PointTransaction[];
 }
+
+export * from './jarvis-guide.models';
+
