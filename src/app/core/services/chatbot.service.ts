@@ -60,11 +60,10 @@ export class ChatbotService {
     this.isTyping.set(true);
 
     // Simulate natural response latency (300-600ms)
-    setTimeout(async () => {
-      const botResponse = await this.generateResponse(cleanText);
-      this.messages.update((msgs) => [...msgs, botResponse]);
-      this.isTyping.set(false);
-    }, 450);
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    const botResponse = await this.generateResponse(cleanText);
+    this.messages.update((msgs) => [...msgs, botResponse]);
+    this.isTyping.set(false);
   }
 
   private async generateResponse(query: string): Promise<ChatMessage> {
